@@ -57,6 +57,14 @@ func runPushCommand(ctx context.Context) error {
 		sdktrace.WithBatcher(exporter),
 	)
 	otel.SetTracerProvider(tp)
+	if len(rawSpan.ParentSpanId) > 0 {
+		spanContext := trace.NewSpanContext(trace.SpanContextConfig{
+			TraceID:    trace.TraceID(rawSpan.TraceId),
+			SpanID:     trace.SpanID(rawSpan.ParentSpanId),
+			TraceFlags: 01,
+		})
+		ctx = trace.ContextWithRemoteSpanContext(ctx, spanContext)
+	}
 	_, span := tp.Tracer("").Start(ctx,
 		rawSpan.Name,
 		trace.WithSpanKind(trace.SpanKind(rawSpan.Kind)),
