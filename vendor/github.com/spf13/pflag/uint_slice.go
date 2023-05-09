@@ -1,6 +1,3 @@
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package pflag
 
 import (
@@ -122,19 +119,10 @@ func (f *FlagSet) GetUintSlice(name string) ([]uint, error) {
 	return val.([]uint), nil
 }
 
-// MustGetUintSlice is like GetUintSlice, but panics on error.
-func (f *FlagSet) MustGetUintSlice(name string) []uint {
-	val, err := f.GetUintSlice(name)
-	if err != nil {
-		panic(err)
-	}
-	return val
-}
-
 // UintSliceVar defines a uintSlice flag with specified name, default value, and usage string.
 // The argument p points to a []uint variable in which to store the value of the flag.
 func (f *FlagSet) UintSliceVar(p *[]uint, name string, value []uint, usage string) {
-	f.UintSliceVarP(p, name, "", value, usage)
+	f.VarP(newUintSliceValue(value, p), name, "", usage)
 }
 
 // UintSliceVarP is like UintSliceVar, but accepts a shorthand letter that can be used after a single dash.
@@ -142,31 +130,23 @@ func (f *FlagSet) UintSliceVarP(p *[]uint, name, shorthand string, value []uint,
 	f.VarP(newUintSliceValue(value, p), name, shorthand, usage)
 }
 
-// UintSliceVarS is like UintSliceVar, but accepts a shorthand letter that can be used after a single dash, alone.
-func (f *FlagSet) UintSliceVarS(p *[]uint, name, shorthand string, value []uint, usage string) {
-	f.VarS(newUintSliceValue(value, p), name, shorthand, usage)
-}
-
 // UintSliceVar defines a uint[] flag with specified name, default value, and usage string.
 // The argument p points to a uint[] variable in which to store the value of the flag.
 func UintSliceVar(p *[]uint, name string, value []uint, usage string) {
-	CommandLine.UintSliceVar(p, name, value, usage)
+	CommandLine.VarP(newUintSliceValue(value, p), name, "", usage)
 }
 
 // UintSliceVarP is like the UintSliceVar, but accepts a shorthand letter that can be used after a single dash.
 func UintSliceVarP(p *[]uint, name, shorthand string, value []uint, usage string) {
-	CommandLine.UintSliceVarP(p, name, shorthand, value, usage)
-}
-
-// UintSliceVarS is like the UintSliceVar, but accepts a shorthand letter that can be used after a single dash, alone.
-func UintSliceVarS(p *[]uint, name, shorthand string, value []uint, usage string) {
-	CommandLine.UintSliceVarS(p, name, shorthand, value, usage)
+	CommandLine.VarP(newUintSliceValue(value, p), name, shorthand, usage)
 }
 
 // UintSlice defines a []uint flag with specified name, default value, and usage string.
 // The return value is the address of a []uint variable that stores the value of the flag.
 func (f *FlagSet) UintSlice(name string, value []uint, usage string) *[]uint {
-	return f.UintSliceP(name, "", value, usage)
+	p := []uint{}
+	f.UintSliceVarP(&p, name, "", value, usage)
+	return &p
 }
 
 // UintSliceP is like UintSlice, but accepts a shorthand letter that can be used after a single dash.
@@ -176,25 +156,13 @@ func (f *FlagSet) UintSliceP(name, shorthand string, value []uint, usage string)
 	return &p
 }
 
-// UintSliceS is like UintSlice, but accepts a shorthand letter that can be used after a single dash, alone.
-func (f *FlagSet) UintSliceS(name, shorthand string, value []uint, usage string) *[]uint {
-	p := []uint{}
-	f.UintSliceVarS(&p, name, shorthand, value, usage)
-	return &p
-}
-
 // UintSlice defines a []uint flag with specified name, default value, and usage string.
 // The return value is the address of a []uint variable that stores the value of the flag.
 func UintSlice(name string, value []uint, usage string) *[]uint {
-	return CommandLine.UintSlice(name, value, usage)
+	return CommandLine.UintSliceP(name, "", value, usage)
 }
 
 // UintSliceP is like UintSlice, but accepts a shorthand letter that can be used after a single dash.
 func UintSliceP(name, shorthand string, value []uint, usage string) *[]uint {
 	return CommandLine.UintSliceP(name, shorthand, value, usage)
-}
-
-// UintSliceS is like UintSlice, but accepts a shorthand letter that can be used after a single dash, alone.
-func UintSliceS(name, shorthand string, value []uint, usage string) *[]uint {
-	return CommandLine.UintSliceS(name, shorthand, value, usage)
 }

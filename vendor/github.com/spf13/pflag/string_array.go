@@ -1,6 +1,3 @@
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package pflag
 
 // -- stringArray Value
@@ -33,14 +30,22 @@ func (s *stringArrayValue) Append(val string) error {
 
 func (s *stringArrayValue) Replace(val []string) error {
 	out := make([]string, len(val))
-	copy(out, val)
+	for i, d := range val {
+		var err error
+		out[i] = d
+		if err != nil {
+			return err
+		}
+	}
 	*s.value = out
 	return nil
 }
 
 func (s *stringArrayValue) GetSlice() []string {
 	out := make([]string, len(*s.value))
-	copy(out, *s.value)
+	for i, d := range *s.value {
+		out[i] = d
+	}
 	return out
 }
 
@@ -71,20 +76,11 @@ func (f *FlagSet) GetStringArray(name string) ([]string, error) {
 	return val.([]string), nil
 }
 
-// MustGetStringArray is like GetStringArray, but panics on error.
-func (f *FlagSet) MustGetStringArray(name string) []string {
-	val, err := f.GetStringArray(name)
-	if err != nil {
-		panic(err)
-	}
-	return val
-}
-
 // StringArrayVar defines a string flag with specified name, default value, and usage string.
 // The argument p points to a []string variable in which to store the values of the multiple flags.
 // The value of each argument will not try to be separated by comma. Use a StringSlice for that.
 func (f *FlagSet) StringArrayVar(p *[]string, name string, value []string, usage string) {
-	f.StringArrayVarP(p, name, "", value, usage)
+	f.VarP(newStringArrayValue(value, p), name, "", usage)
 }
 
 // StringArrayVarP is like StringArrayVar, but accepts a shorthand letter that can be used after a single dash.
@@ -92,33 +88,25 @@ func (f *FlagSet) StringArrayVarP(p *[]string, name, shorthand string, value []s
 	f.VarP(newStringArrayValue(value, p), name, shorthand, usage)
 }
 
-// StringArrayVarS is like StringArrayVar, but accepts a shorthand letter that can be used after a single dash, alone.
-func (f *FlagSet) StringArrayVarS(p *[]string, name, shorthand string, value []string, usage string) {
-	f.VarS(newStringArrayValue(value, p), name, shorthand, usage)
-}
-
 // StringArrayVar defines a string flag with specified name, default value, and usage string.
 // The argument p points to a []string variable in which to store the value of the flag.
 // The value of each argument will not try to be separated by comma. Use a StringSlice for that.
 func StringArrayVar(p *[]string, name string, value []string, usage string) {
-	CommandLine.StringArrayVar(p, name, value, usage)
+	CommandLine.VarP(newStringArrayValue(value, p), name, "", usage)
 }
 
 // StringArrayVarP is like StringArrayVar, but accepts a shorthand letter that can be used after a single dash.
 func StringArrayVarP(p *[]string, name, shorthand string, value []string, usage string) {
-	CommandLine.StringArrayVarP(p, name, shorthand, value, usage)
-}
-
-// StringArrayVarS is like StringArrayVar, but accepts a shorthand letter that can be used after a single dash, alone.
-func StringArrayVarS(p *[]string, name, shorthand string, value []string, usage string) {
-	CommandLine.StringArrayVarS(p, name, shorthand, value, usage)
+	CommandLine.VarP(newStringArrayValue(value, p), name, shorthand, usage)
 }
 
 // StringArray defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a []string variable that stores the value of the flag.
 // The value of each argument will not try to be separated by comma. Use a StringSlice for that.
 func (f *FlagSet) StringArray(name string, value []string, usage string) *[]string {
-	return f.StringArrayP(name, "", value, usage)
+	p := []string{}
+	f.StringArrayVarP(&p, name, "", value, usage)
+	return &p
 }
 
 // StringArrayP is like StringArray, but accepts a shorthand letter that can be used after a single dash.
@@ -128,26 +116,14 @@ func (f *FlagSet) StringArrayP(name, shorthand string, value []string, usage str
 	return &p
 }
 
-// StringArrayS is like StringArray, but accepts a shorthand letter that can be used after a single , alone, alone.
-func (f *FlagSet) StringArrayS(name, shorthand string, value []string, usage string) *[]string {
-	p := []string{}
-	f.StringArrayVarS(&p, name, shorthand, value, usage)
-	return &p
-}
-
 // StringArray defines a string flag with specified name, default value, and usage string.
 // The return value is the address of a []string variable that stores the value of the flag.
 // The value of each argument will not try to be separated by comma. Use a StringSlice for that.
 func StringArray(name string, value []string, usage string) *[]string {
-	return CommandLine.StringArray(name, value, usage)
+	return CommandLine.StringArrayP(name, "", value, usage)
 }
 
 // StringArrayP is like StringArray, but accepts a shorthand letter that can be used after a single dash.
 func StringArrayP(name, shorthand string, value []string, usage string) *[]string {
 	return CommandLine.StringArrayP(name, shorthand, value, usage)
-}
-
-// StringArrayS is like StringArray, but accepts a shorthand letter that can be used after a single dash, alone.
-func StringArrayS(name, shorthand string, value []string, usage string) *[]string {
-	return CommandLine.StringArrayS(name, shorthand, value, usage)
 }

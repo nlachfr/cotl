@@ -1,6 +1,3 @@
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package pflag
 
 import "strconv"
@@ -42,19 +39,10 @@ func (f *FlagSet) GetFloat32(name string) (float32, error) {
 	return val.(float32), nil
 }
 
-// MustGetFloat32 is like GetFloat32, but panics on error.
-func (f *FlagSet) MustGetFloat32(name string) float32 {
-	val, err := f.GetFloat32(name)
-	if err != nil {
-		panic(err)
-	}
-	return val
-}
-
 // Float32Var defines a float32 flag with specified name, default value, and usage string.
 // The argument p points to a float32 variable in which to store the value of the flag.
 func (f *FlagSet) Float32Var(p *float32, name string, value float32, usage string) {
-	f.Float32VarP(p, name, "", value, usage)
+	f.VarP(newFloat32Value(value, p), name, "", usage)
 }
 
 // Float32VarP is like Float32Var, but accepts a shorthand letter that can be used after a single dash.
@@ -62,31 +50,23 @@ func (f *FlagSet) Float32VarP(p *float32, name, shorthand string, value float32,
 	f.VarP(newFloat32Value(value, p), name, shorthand, usage)
 }
 
-// Float32VarS is like Float32Var, but accepts a shorthand letter that can be used after a single dash, alone.
-func (f *FlagSet) Float32VarS(p *float32, name, shorthand string, value float32, usage string) {
-	f.VarS(newFloat32Value(value, p), name, shorthand, usage)
-}
-
 // Float32Var defines a float32 flag with specified name, default value, and usage string.
 // The argument p points to a float32 variable in which to store the value of the flag.
 func Float32Var(p *float32, name string, value float32, usage string) {
-	CommandLine.Float32Var(p, name, value, usage)
+	CommandLine.VarP(newFloat32Value(value, p), name, "", usage)
 }
 
 // Float32VarP is like Float32Var, but accepts a shorthand letter that can be used after a single dash.
 func Float32VarP(p *float32, name, shorthand string, value float32, usage string) {
-	CommandLine.Float32VarP(p, name, shorthand, value, usage)
-}
-
-// Float32VarS is like Float32Var, but accepts a shorthand letter that can be used after a single dash, alone.
-func Float32VarS(p *float32, name, shorthand string, value float32, usage string) {
-	CommandLine.Float32VarS(p, name, shorthand, value, usage)
+	CommandLine.VarP(newFloat32Value(value, p), name, shorthand, usage)
 }
 
 // Float32 defines a float32 flag with specified name, default value, and usage string.
 // The return value is the address of a float32 variable that stores the value of the flag.
 func (f *FlagSet) Float32(name string, value float32, usage string) *float32 {
-	return f.Float32P(name, "", value, usage)
+	p := new(float32)
+	f.Float32VarP(p, name, "", value, usage)
+	return p
 }
 
 // Float32P is like Float32, but accepts a shorthand letter that can be used after a single dash.
@@ -96,25 +76,13 @@ func (f *FlagSet) Float32P(name, shorthand string, value float32, usage string) 
 	return p
 }
 
-// Float32S is like Float32, but accepts a shorthand letter that can be used after a single dash, alone.
-func (f *FlagSet) Float32S(name, shorthand string, value float32, usage string) *float32 {
-	p := new(float32)
-	f.Float32VarS(p, name, shorthand, value, usage)
-	return p
-}
-
 // Float32 defines a float32 flag with specified name, default value, and usage string.
 // The return value is the address of a float32 variable that stores the value of the flag.
 func Float32(name string, value float32, usage string) *float32 {
-	return CommandLine.Float32(name, value, usage)
+	return CommandLine.Float32P(name, "", value, usage)
 }
 
 // Float32P is like Float32, but accepts a shorthand letter that can be used after a single dash.
 func Float32P(name, shorthand string, value float32, usage string) *float32 {
 	return CommandLine.Float32P(name, shorthand, value, usage)
-}
-
-// Float32S is like Float32, but accepts a shorthand letter that can be used after a single dash, alone.
-func Float32S(name, shorthand string, value float32, usage string) *float32 {
-	return CommandLine.Float32S(name, shorthand, value, usage)
 }
